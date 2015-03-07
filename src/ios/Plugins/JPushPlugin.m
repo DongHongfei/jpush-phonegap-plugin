@@ -13,11 +13,16 @@
 
 - (CDVPlugin*)initWithWebView:(UIWebView*)theWebView{
     if (self=[super initWithWebView:theWebView]) {
-        
+
         NSNotificationCenter *defaultCenter = [NSNotificationCenter defaultCenter];
         [defaultCenter addObserver:self
                           selector:@selector(networkDidReceiveMessage:)
                               name:kJPFNetworkDidReceiveMessageNotification
+                            object:nil];
+
+        [defaultCenter addObserver:self
+                          selector:@selector(networkDidReceiveNotification:)
+                              name:kJPushPlugReceiveNotificaiton
                             object:nil];
 
     }
@@ -25,7 +30,7 @@
 }
 
 -(void)setTagsWithAlias:(CDVInvokedUrlCommand*)command{
-    
+
     NSArray *arguments=command.arguments;
     if (!arguments||[arguments count]<2) {
 //        [self writeJavascript:[NSString stringWithFormat:@"window.plugins.jPushPlugin.pushCallback('%@')",@""]];
@@ -39,31 +44,31 @@
       callbackSelector:@selector(tagsWithAliasCallback:tags:alias:)
                 object:self];
 }
-    
+
 -(void)setTags:(CDVInvokedUrlCommand *)command{
-    
+
 
     NSArray *arguments=[command arguments];
     NSString *tags=[arguments objectAtIndex:0];
-    
+
     NSArray  *array=[tags componentsSeparatedByString:@","];
    [APService setTags:[NSSet setWithArray:array]
       callbackSelector:@selector(tagsWithAliasCallback:tags:alias:)
                 object:self];
-    
+
 }
-    
+
 -(void)setAlias:(CDVInvokedUrlCommand *)command{
-    
+
     NSArray *arguments=[command arguments];
    [APService setAlias:[arguments objectAtIndex:0]
       callbackSelector:@selector(tagsWithAliasCallback:tags:alias:)
                 object:self];
-    
+
 }
 
 -(void)getRegistrationID:(CDVInvokedUrlCommand*)command{
-    
+
     NSString* registrationID = [APService registrationID];
     CDVPluginResult *result=[self pluginResultForValue:registrationID];
     if (result) {
@@ -73,9 +78,9 @@
     }
 }
 
-    
+
 -(void)tagsWithAliasCallback:(int)resultCode tags:(NSSet *)tags alias:(NSString *)alias{
-    
+
     NSDictionary *dict=[NSDictionary dictionaryWithObjectsAndKeys:
                               [NSNumber numberWithInt:resultCode],@"resultCode",
                         tags==nil?[NSNull null]:[tags allObjects],@"tags",
@@ -93,7 +98,7 @@
       [self.commandDelegate evalJs:[NSString stringWithFormat:@"cordova.fireDocumentEvent('jpush.setTagsWithAlias',%@)",jsonString]];
 //      [self writeJavascript:[NSString stringWithFormat:@"window.plugins.jPushPlugin.pushCallback('%@')",jsonString]];
     });
-    
+
 }
 
 -(void)startLogPageView:(CDVInvokedUrlCommand*)command{
@@ -145,15 +150,15 @@
     [APService resetBadge];
 }
 -(void)setDebugModeFromIos:(CDVInvokedUrlCommand*)command{
-    
+
     [APService setDebugMode];
 }
 -(void)setLogOFF:(CDVInvokedUrlCommand*)command{
-    
+
     [APService setLogOFF];
 }
 -(void)stopPush:(CDVInvokedUrlCommand*)command{
-    
+
     [[UIApplication sharedApplication]unregisterForRemoteNotifications];
 
 }
@@ -165,7 +170,7 @@
     [self.commandDelegate sendPluginResult:result callbackId:callbackID];
 }
 - (CDVPluginResult *)pluginResultForValue:(id)value {
-    
+
     CDVPluginResult *result;
     if ([value isKindOfClass:[NSString class]]) {
         result = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK
@@ -195,19 +200,34 @@
 
     NSDictionary *userInfo = [notification userInfo];
     NSLog(@"%@",userInfo);
-    
+
     NSError  *error;
     NSData   *jsonData   = [NSJSONSerialization dataWithJSONObject:userInfo options:0 error:&error];
     NSString *jsonString = [[NSString alloc]initWithData:jsonData encoding:NSUTF8StringEncoding];
- 
+
     NSLog(@"%@",jsonString);
-    
+
     dispatch_async(dispatch_get_main_queue(), ^{
-        
+
         [self writeJavascript:[NSString stringWithFormat:@"window.plugins.jPushPlugin.receiveMessageIniOSCallback('%@')",jsonString]];
-        
+
     });
 
 }
+
+-(void)networkDidReceiveNotification:(NSNotification *)notification{//viper
+    NSLog(@"%@",notification);//viper
+    //here add your  ode
+    NSDictionary *object = [notification object];
+    NSError  *error;
+    NSData   *jsonData   = [NSJSONSerialization dataWithJSONObject:object options:0 error:&error];
+    NSString *jsonString = [[NSString alloc]initWithData:jsonData encoding:NSUTF8StringEncoding];
+    dispatch_async(dispatch_get_main_queue(), ^{
+
+        [self writeJavascript:[NSString stringWithFormat:@"window.plugins.jPushPlugin.receiveNotificationIniOSCallback('%@')",jsonString]];
+
+    });
+
+}//viper
 
 @end

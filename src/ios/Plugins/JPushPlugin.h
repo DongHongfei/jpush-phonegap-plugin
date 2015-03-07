@@ -8,8 +8,10 @@
 
 #import <Cordova/CDV.h>
 
+#define kJPushPlugReceiveNotificaiton @"JPushPluginRecieveNotification"
+
 @interface JPushPlugin : CDVPlugin{
-  
+
 }
 
 -(void)setTagsWithAlias:(CDVInvokedUrlCommand*)command;
