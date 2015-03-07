@@ -1,3 +1,14 @@
+### 修改备注：
+在极光官方大神viper帮助下，同时也参考了下@lanceli大神的cnodejs-ionic项目，完善了iOS
+版的从通知栏打开应用时调用的receiveNotificationIniOSCallback方法
+
+
+
+----
+**以下为官方原版文档**
+
+----
+
 ## JPush PhoneGap Plugin ##
 ###创建项目###
 1. cordova create 文件夹名字 包名 应用名字
