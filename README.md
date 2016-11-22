@@ -1,3 +1,8 @@
+**非官方文档，且已不再维护，具体使用请参考官网！！！**
+使用了此插件，并出现问题的各位，非常抱歉！！！
+官方入口：https://github.com/jpush
+
+
 ### 修改备注：
 在极光官方大神viper帮助下，同时也参考了下@lanceli大神的cnodejs-ionic项目，完善了iOS
 版的从通知栏打开应用时调用的receiveNotificationIniOSCallback方法
